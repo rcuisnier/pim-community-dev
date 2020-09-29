@@ -676,7 +676,7 @@ abstract class AbstractProduct implements ProductInterface
      */
     public function getFamilyVariant(): ?FamilyVariantInterface
     {
-        return $this->familyVariant;
+        return $this->parent ? $this->parent->getfamilyVariant() : null;
     }
 
     /**
@@ -684,7 +684,8 @@ abstract class AbstractProduct implements ProductInterface
      */
     public function setFamilyVariant(FamilyVariantInterface $familyVariant): void
     {
-        $this->familyVariant = $familyVariant;
+        // C'EST DEBILE
+        //$this->familyVariant = $familyVariant;
     }
 
     /**
@@ -853,5 +854,27 @@ abstract class AbstractProduct implements ProductInterface
         $associationsCollection->add($association);
 
         return $associationsCollection;
+    }
+
+    public function detachFromParent(): void
+    {
+        $allCategories = $this->getCategories();
+        foreach ($allCategories as $category) {
+            if (!$this->categories->contains($category)) {
+                $this->categories->add($category);
+            }
+        }
+
+        $allValues = $this->getValues();
+        foreach ($allValues as $value) {
+            if (!$this->values->contains($value)) {
+                $this->values->add($value);
+            }
+        }
+
+        // TODO: recursive merge
+        $this->setAssociations($this->getAllAssociations());
+
+        $this->setParent(null);
     }
 }
