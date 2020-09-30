@@ -123,6 +123,30 @@ extensions:
         targetZone: secondary-actions
         aclResourceId: pim_enrich_product_edit_attributes
         position: 80
+    
+    pim-product-edit-form-convert-to-simple:
+        module: pim/product-edit-form/convert-to-simple
+        parent: pim-product-edit-form-secondary-actions
+        targetZone: secondary-actions
+        aclResourceId: pim_enrich_product_edit_attributes
+        position: 90
+        config:
+            url: pim_enrich_product_rest_convert_to_simple
+            redirectUrl: pim_enrich_product_edit
+            trans:
+                success: TODO
+
+    pim-product-edit-form-convert-to-simple-modal:
+       module: pimee/product-edit-form/duplicate/modal
+       config:
+           labels:
+               title: pimee_enrich.entity.product.duplicate.title
+               subTitle: pim_enrich.entity.product.plural_label
+           picture: illustrations/Product.svg
+           successMessage: pimee_enrich.entity.product.duplicate.flash.success
+           successMessageWithAttributeCodes: pimee_enrich.entity.product.duplicate.flash.success_with_attribute_codes
+           editRoute: pim_enrich_product_edit
+           postUrl: pimee_enrich_product_rest_duplicate
 
     pim-product-edit-form-save-buttons:
         module: pim/form/common/save-buttons

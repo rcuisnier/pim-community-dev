@@ -389,7 +389,6 @@ class ProductController
         $this->productUpdater->update($product, ['parent' => null]);
 
         $violations = $this->validator->validate($product);
-        $violations->addAll($this->localizedConverter->getViolations());
 
         if (0 === $violations->count()) {
             $this->productSaver->save($product);
