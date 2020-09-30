@@ -124,14 +124,12 @@ class ParentFieldSetterSpec extends ObjectBehavior
         );
     }
 
-    function it_throw_an_exception_if_the_parent_is_empty_on_a_product_with_a_parent(
+    function it_removes_the_parent_of_the_variant_product(
         ProductInterface $variantProduct
     ) {
         $variantProduct->isVariant()->willReturn(true);
 
-        $this->shouldThrow(ImmutablePropertyException::class)->during(
-            'setFieldData',
-            [$variantProduct, 'parent', null]
-        );
+        $variantProduct->detachFromParent()->shouldBeCalled();
+        $this->setFieldData($variantProduct, 'parent', null);
     }
 }

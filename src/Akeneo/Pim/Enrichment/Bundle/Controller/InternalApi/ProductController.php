@@ -364,6 +364,51 @@ class ProductController
     }
 
     /**
+     * Convert a product variant to a simple product
+     *
+     * @param Request $request
+     * @param string  $id
+     * @todo check permissions with Morgane
+     */
+    public function convertToSimpleProductAction(Request $request, int $id)
+    {
+        if (!$request->isXmlHttpRequest()) {
+            return new RedirectResponse('/');
+        }
+
+        $product = $this->findProductOr404($id);
+        if ($this->objectFilter->filterObject($product, 'pim.internal_api.product.edit')) {
+            throw new AccessDeniedHttpException();
+        }
+
+        if (!$product->isVariant()) {
+            // TODO Throw a correct exception
+            throw new Exception();
+        }
+
+        $this->productUpdater->update($product, ['parent' => null]);
+
+        $violations = $this->validator->validate($product);
+        $violations->addAll($this->localizedConverter->getViolations());
+
+        if (0 === $violations->count()) {
+            $this->productSaver->save($product);
+
+            $normalizedProduct = $this->normalizer->normalize(
+                $product,
+                'internal_api',
+                $this->getNormalizationContext()
+            );
+
+            return new JsonResponse($normalizedProduct);
+        }
+
+        $normalizedViolations = $this->normalizeViolations($violations, $product);
+
+        return new JsonResponse($normalizedViolations, 400);
+    }
+
+    /**
      * Find a product by its id or return a 404 response
      *
      * @param string $id the product id

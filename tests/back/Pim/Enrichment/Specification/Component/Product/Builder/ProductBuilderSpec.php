@@ -68,7 +68,6 @@ class ProductBuilderSpec extends ObjectBehavior
         );
 
         $familyRepository->findOneByIdentifier('tshirt')->willReturn($tshirtFamily);
-        $tshirtFamily->getId()->shouldBeCalled();
         $tshirtFamily->getAttributes()->willReturn([]);
 
         $eventDispatcher->dispatch(ProductEvents::CREATE, Argument::any())->shouldBeCalled();

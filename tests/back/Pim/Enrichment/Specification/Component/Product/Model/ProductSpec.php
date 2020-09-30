@@ -6,6 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use PhpSpec\ObjectBehavior;
 use Akeneo\Pim\Structure\Component\AttributeTypes;
+use Akeneo\Pim\Enrichment\Component\Product\Model\ProductModel;
 use Akeneo\Pim\Enrichment\Component\Product\Model\ProductAssociation;
 use Akeneo\Pim\Structure\Component\Model\AssociationTypeInterface;
 use Akeneo\Pim\Structure\Component\Model\AttributeInterface;
@@ -20,10 +21,8 @@ class ProductSpec extends ObjectBehavior
 {
     function it_has_family(FamilyInterface $family)
     {
-        $family->getId()->willReturn(42);
         $this->setFamily($family);
         $this->getFamily()->shouldReturn($family);
-        $this->getFamilyId()->shouldReturn(42);
     }
 
     function it_belongs_to_categories(CategoryInterface $category1, CategoryInterface $category2)
@@ -460,7 +459,9 @@ class ProductSpec extends ObjectBehavior
 
     function it_has_a_family_variant(FamilyVariantInterface $familyVariant)
     {
-        $this->setFamilyVariant($familyVariant);
+        $productModel = new ProductModel();
+        $productModel->setFamilyVariant($familyVariant->getWrappedObject());
+        $this->setParent($productModel);
         $this->getFamilyVariant()->shouldReturn($familyVariant);
     }
 }
