@@ -873,7 +873,35 @@ abstract class AbstractProduct implements ProductInterface
         }
 
         // TODO: recursive merge
-        $this->setAssociations($this->getAllAssociations());
+        $ancestryAssociations = $this->getAncestryAssociations($this, new ArrayCollection());
+
+        foreach ($ancestryAssociations as $ancestryAssociation) {
+            $currentAssociation = $this->getAssociationForType($ancestryAssociation->getAssociationType());
+
+            if (null === $currentAssociation) {
+                $currentAssociation = new ProductAssociation();
+                $currentAssociation->setAssociationType($ancestryAssociation->getAssociationType());
+                $this->addAssociation($currentAssociation);
+            }
+
+            foreach ($ancestryAssociation->getProducts() as $product) {
+                if (!$currentAssociation->getProducts()->contains($product)) {
+                    $currentAssociation->getProducts()->add($product);
+                }
+            }
+
+            foreach ($ancestryAssociation->getProductModels() as $productModel) {
+                if (!$currentAssociation->getProductModels()->contains($productModel)) {
+                    $currentAssociation->getProductModels()->add($productModel);
+                }
+            }
+
+            foreach ($ancestryAssociation->getGroups() as $group) {
+                if (!$currentAssociation->getGroups()->contains($group)) {
+                    $currentAssociation->getGroups()->add($group);
+                }
+            }
+        }
 
         $this->setParent(null);
     }

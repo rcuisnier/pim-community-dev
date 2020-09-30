@@ -25,12 +25,12 @@ class TransformVariantIntoSimpleIntegration extends TestCase
     public function it_keeps_categories_and_values(): void
     {
         $this->simplifyProduct($this->product);
-//        $this->assertValuesAndCategoriesAreKept($this->product);
+        $this->assertValuesAndCategoriesAreKept($this->product);
 
         $this->saveProduct($this->product);
         Assert::assertTrue(null === $this->product->getParent(), 'parent is not null');
         Assert::assertTrue(null === $this->product->getFamilyVariant(), 'family variant is not null');
-//        $this->assertValuesAndCategoriesAreKept($this->product);
+        $this->assertValuesAndCategoriesAreKept($this->product);
 
         $this->get('pim_connector.doctrine.cache_clearer')->clear();
         $product = $this->get('pim_catalog.repository.product')->findOneByIdentifier('variant');
@@ -189,7 +189,7 @@ class TransformVariantIntoSimpleIntegration extends TestCase
 
     private function simplifyProduct(ProductInterface $product): void
     {
-        $product->detachFromParent();
+        $this->get('pim_catalog.updater.product')->update($product, ['parent' => null]);
     }
 
     private function createProduct(string $identifier, array $data): ProductInterface

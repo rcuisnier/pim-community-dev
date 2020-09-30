@@ -46,7 +46,8 @@ class ParentFieldSetter extends AbstractFieldSetter
         }
 
         if ($product->isVariant() && null === $data) {
-            throw ImmutablePropertyException::immutableProperty($field, $data, static::class);
+            $product->detachFromParent();
+            return;
         }
 
         if (null === $data) {
