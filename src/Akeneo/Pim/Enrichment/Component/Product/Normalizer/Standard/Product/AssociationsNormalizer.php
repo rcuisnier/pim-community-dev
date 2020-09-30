@@ -87,16 +87,18 @@ class AssociationsNormalizer implements NormalizerInterface, CacheableSupportsMe
                 }
 
                 $data[$code]['products'] = $data[$code]['products'] ?? [];
-                if ($associationAwareEntity instanceof ProductModelInterface) {
+
+                // TODO: check why it was done that way
+                //if ($associationAwareEntity instanceof ProductModelInterface) {
                     foreach ($association->getProducts() as $product) {
                         $data[$code]['products'][] = $product->getReference();
                     }
-                } else {
-                    $data[$code]['products'] = array_merge($data[$code]['products'], $this->getAssociatedProductCodeByProduct->getCodes(
-                        $associationAwareEntity->getId(),
-                        $association
-                    ));
-                }
+//                } else {
+//                    $data[$code]['products'] = array_merge($data[$code]['products'], $this->getAssociatedProductCodeByProduct->getCodes(
+//                        $associationAwareEntity->getId(),
+//                        $association
+//                    ));
+//                }
 
                 $data[$code]['product_models'] = $data[$code]['product_models'] ?? [];
                 foreach ($association->getProductModels() as $productModel) {

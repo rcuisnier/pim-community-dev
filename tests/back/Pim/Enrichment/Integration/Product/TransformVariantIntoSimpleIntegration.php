@@ -18,25 +18,25 @@ class TransformVariantIntoSimpleIntegration extends TestCase
      */
     public function temoin()
     {
-        $this->assertValuesAndCategoriesAreKept($this->product);
+        $this->assertValuesCategoriesAndAssociationsArePreserved($this->product);
     }
 
     /** @test */
     public function it_keeps_categories_and_values(): void
     {
         $this->simplifyProduct($this->product);
-        $this->assertValuesAndCategoriesAreKept($this->product);
+        $this->assertValuesCategoriesAndAssociationsArePreserved($this->product);
 
         $this->saveProduct($this->product);
         Assert::assertTrue(null === $this->product->getParent(), 'parent is not null');
         Assert::assertTrue(null === $this->product->getFamilyVariant(), 'family variant is not null');
-        $this->assertValuesAndCategoriesAreKept($this->product);
+        $this->assertValuesCategoriesAndAssociationsArePreserved($this->product);
 
         $this->get('pim_connector.doctrine.cache_clearer')->clear();
         $product = $this->get('pim_catalog.repository.product')->findOneByIdentifier('variant');
         Assert::assertTrue(null === $product->getParent(), 'parent is not null');
         Assert::assertTrue(null === $product->getFamilyVariant(), 'family variant is not null');
-        $this->assertValuesAndCategoriesAreKept($product);
+        $this->assertValuesCategoriesAndAssociationsArePreserved($product);
     }
 
     protected function setUp(): void
@@ -141,7 +141,7 @@ class TransformVariantIntoSimpleIntegration extends TestCase
         return $this->catalog->useTechnicalCatalog();
     }
 
-    private function assertValuesAndCategoriesAreKept(ProductInterface $product): void
+    private function assertValuesCategoriesAndAssociationsArePreserved(ProductInterface $product): void
     {
         $categories = $product->getCategoryCodes();
         Assert::assertSame(
@@ -159,32 +159,43 @@ class TransformVariantIntoSimpleIntegration extends TestCase
             $product,
             'standard'
         );
-        Assert::assertEqualsCanonicalizing(
-            [
-                'PACK' => [
-                    'groups' => ['groupA'],
-                    'products' => ['random', 'other'],
-                    'product_models' => ['pm_1'],
-                ],
-                'SUBSTITUTION' => [
-                    'groups' => [],
-                    'products' => [],
-                    'product_models' => [],
-                ],
-                'UPSELL' => [
-                    'groups' => ['groupB'],
-                    'products' => [],
-                    'product_models' => ['pm_2'],
-                ],
-                'X_SELL' => [
-                    'groups' => [],
-                    'products' => [],
-                    'product_models' => [],
-                ],
+        $expectedAssociations = [
+            'PACK' => [
+                'groups' => ['groupA'],
+                'products' => ['random', 'other'],
+                'product_models' => ['pm_1'],
             ],
-            $normalizedAssociations,
-            'wrong associations ' . \json_encode($normalizedAssociations, JSON_PRETTY_PRINT)
-        );
+            'SUBSTITUTION' => [
+                'groups' => [],
+                'products' => [],
+                'product_models' => [],
+            ],
+            'UPSELL' => [
+                'groups' => ['groupB'],
+                'products' => [],
+                'product_models' => ['pm_2'],
+            ],
+            'X_SELL' => [
+                'groups' => [],
+                'products' => [],
+                'product_models' => [],
+            ],
+        ];
+        Assert::assertSame(array_keys($normalizedAssociations), array_keys($expectedAssociations));
+        foreach ($normalizedAssociations as $associationType => $association) {
+            Assert::assertEqualsCanonicalizing(
+                $expectedAssociations[$associationType]['products'],
+                $association['products']
+            );
+            Assert::assertEqualsCanonicalizing(
+                $expectedAssociations[$associationType]['product_models'],
+                $association['product_models']
+            );
+            Assert::assertEqualsCanonicalizing(
+                $expectedAssociations[$associationType]['groups'],
+                $association['groups']
+            );
+        }
     }
 
     private function simplifyProduct(ProductInterface $product): void
