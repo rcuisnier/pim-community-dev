@@ -2,20 +2,25 @@
 
 namespace Specification\Akeneo\Pim\Enrichment\Component\Product\Model;
 
+use Akeneo\Pim\Enrichment\Component\Category\Model\CategoryInterface;
+use Akeneo\Pim\Enrichment\Component\Product\Model\Product;
+use Akeneo\Pim\Enrichment\Component\Product\Model\ProductAssociation;
+use Akeneo\Pim\Enrichment\Component\Product\Model\ProductModel;
+use Akeneo\Pim\Enrichment\Component\Product\Model\ProductModelAssociation;
+use Akeneo\Pim\Enrichment\Component\Product\Model\ProductModelInterface;
+use Akeneo\Pim\Enrichment\Component\Product\Model\ValueInterface;
+use Akeneo\Pim\Enrichment\Component\Product\Model\WriteValueCollection;
+use Akeneo\Pim\Enrichment\Component\Product\Value\OptionValue;
+use Akeneo\Pim\Enrichment\Component\Product\Value\ScalarValue;
+use Akeneo\Pim\Structure\Component\AttributeTypes;
+use Akeneo\Pim\Structure\Component\Model\AssociationType;
+use Akeneo\Pim\Structure\Component\Model\AssociationTypeInterface;
+use Akeneo\Pim\Structure\Component\Model\AttributeInterface;
+use Akeneo\Pim\Structure\Component\Model\FamilyInterface;
+use Akeneo\Pim\Structure\Component\Model\FamilyVariantInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use PhpSpec\ObjectBehavior;
-use Akeneo\Pim\Structure\Component\AttributeTypes;
-use Akeneo\Pim\Enrichment\Component\Product\Model\ProductModel;
-use Akeneo\Pim\Enrichment\Component\Product\Model\ProductAssociation;
-use Akeneo\Pim\Structure\Component\Model\AssociationTypeInterface;
-use Akeneo\Pim\Structure\Component\Model\AttributeInterface;
-use Akeneo\Pim\Enrichment\Component\Category\Model\CategoryInterface;
-use Akeneo\Pim\Structure\Component\Model\FamilyInterface;
-use Akeneo\Pim\Structure\Component\Model\FamilyVariantInterface;
-use Akeneo\Pim\Enrichment\Component\Product\Model\ProductModelInterface;
-use Akeneo\Pim\Enrichment\Component\Product\Model\WriteValueCollection;
-use Akeneo\Pim\Enrichment\Component\Product\Model\ValueInterface;
 
 class ProductSpec extends ObjectBehavior
 {
@@ -463,5 +468,50 @@ class ProductSpec extends ObjectBehavior
         $productModel->setFamilyVariant($familyVariant->getWrappedObject());
         $this->setParent($productModel);
         $this->getFamilyVariant()->shouldReturn($familyVariant);
+    }
+
+    function it_can_be_converted_from_variant_to_simple(
+        CategoryInterface $parentCategory,
+        CategoryInterface $childCategory
+    ) {
+        $xsell = new AssociationType();
+        $xsell->setCode('XSELL');
+
+        $parent = new ProductModel();
+        $parent->addCategory($parentCategory->getWrappedObject());
+        $parentValue = ScalarValue::value('name', 'test');
+        $parent->addValue($parentValue);
+        $associatedProduct1 = new Product();
+        $parentAssociation = new ProductModelAssociation();
+        $parentAssociation->setAssociationType($xsell);
+        $parentAssociation->addProduct($associatedProduct1);
+        $parent->addAssociation($parentAssociation);
+
+        $this->addCategory($childCategory->getWrappedObject());
+        $childValue = OptionValue::value('color', 'red');
+        $this->addValue($childValue);
+        $associatedProduct2 = new Product();
+        $childAssociation = new ProductAssociation();
+        $childAssociation->setAssociationType($xsell);
+        $childAssociation->addProduct($associatedProduct2);
+        $this->addAssociation($childAssociation);
+        $this->setParent($parent);
+
+        $this->isVariant()->shouldReturn(true);
+
+        $this->detachFromParent();
+
+        $this->isVariant()->shouldReturn(false);
+        $this->getParent()->shouldReturn(null);
+
+        $this->getValues()->contains($childValue)->shouldReturn(true);
+        $this->getValues()->contains($parentValue)->shouldReturn(true);
+        $this->getCategories()->contains($parentCategory)->shouldReturn(true);
+        $this->getCategories()->contains($childCategory)->shouldReturn(true);
+
+        $association = $this->getAssociationForTypeCode('XSELL');
+        $association->shouldBe($childAssociation);
+        $association->getProducts()->contains($associatedProduct1)->shouldReturn(true);
+        $association->getProducts()->contains($associatedProduct2)->shouldReturn(true);
     }
 }

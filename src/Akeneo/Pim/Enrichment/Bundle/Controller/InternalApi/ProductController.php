@@ -383,7 +383,7 @@ class ProductController
 
         if (!$product->isVariant()) {
             // TODO Throw a correct exception
-            throw new Exception();
+            throw new \Exception();
         }
 
         $this->productUpdater->update($product, ['parent' => null]);
