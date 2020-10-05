@@ -31,10 +31,21 @@ final class CreateMissingCriteriaEvaluations implements CreateMissingCriteriaEva
         $this->createProductsCriteriaEvaluations = $createProductsCriteriaEvaluations;
     }
 
-    public function createForProductsUpdatedSince(\DateTimeImmutable $updatedSince, int $batchSize): void
+    public function forUpdatesSince(\DateTimeImmutable $since, int $batchSize): void
+    {
+        $this->createForProductsUpdatedSince($since, $batchSize);
+        $this->createForProductsImpactedByAttributeGroupActivationUpdatedSince($since, $batchSize);
+    }
+
+    private function createForProductsUpdatedSince(\DateTimeImmutable $updatedSince, int $batchSize): void
     {
         foreach ($this->getUpdatedProductIdsQuery->since($updatedSince, $batchSize) as $productIds) {
             $this->createProductsCriteriaEvaluations->createAll($productIds);
         }
+    }
+
+    private function createForProductsImpactedByAttributeGroupActivationUpdatedSince(\DateTimeImmutable $updatedSince, int $batchSize): void
+    {
+
     }
 }

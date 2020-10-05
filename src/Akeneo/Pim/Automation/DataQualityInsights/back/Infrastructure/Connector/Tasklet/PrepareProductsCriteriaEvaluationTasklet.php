@@ -54,7 +54,7 @@ final class PrepareProductsCriteriaEvaluationTasklet implements TaskletInterface
     {
         try {
             $updatedSince = $this->updatedSince();
-            $this->createMissingProductsCriteriaEvaluations->createForProductsUpdatedSince($updatedSince, self::BULK_SIZE);
+            $this->createMissingProductsCriteriaEvaluations->forUpdatesSince($updatedSince, self::BULK_SIZE);
         } catch (\Throwable $exception) {
             $this->logger->error(
                 'Unable to create all missing criteria evaluations for the products',

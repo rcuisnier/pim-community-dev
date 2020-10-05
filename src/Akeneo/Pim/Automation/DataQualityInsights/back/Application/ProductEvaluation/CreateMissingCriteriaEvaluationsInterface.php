@@ -15,5 +15,5 @@ namespace Akeneo\Pim\Automation\DataQualityInsights\Application\ProductEvaluatio
 
 interface CreateMissingCriteriaEvaluationsInterface
 {
-    public function createForProductsUpdatedSince(\DateTimeImmutable $updatedSince, int $batchSize): void;
+    public function forUpdatesSince(\DateTimeImmutable $since, int $batchSize): void;
 }
