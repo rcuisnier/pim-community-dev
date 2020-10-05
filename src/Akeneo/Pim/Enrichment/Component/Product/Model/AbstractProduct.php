@@ -47,23 +47,14 @@ abstract class AbstractProduct implements ProductInterface
     /** @var FamilyInterface $family */
     protected $family;
 
-    /** @var int */
-    protected $familyId;
-
     /** @var Collection $categories */
     protected $categories;
-
-    /** @var array */
-    public $categoryIds = [];
 
     /** @var bool $enabled */
     protected $enabled = true;
 
     /** @var Collection $groups */
     protected $groups;
-
-    /** @var array */
-    protected $groupIds = [];
 
     /** @var Collection $associations */
     protected $associations;
@@ -242,30 +233,9 @@ abstract class AbstractProduct implements ProductInterface
      */
     public function setFamily(FamilyInterface $family = null)
     {
-        if (null !== $family) {
-            $this->familyId = $family->getId();
-        }
         $this->family = $family;
 
         return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setFamilyId($familyId)
-    {
-        $this->familyId = $familyId;
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getFamilyId()
-    {
-        return $this->familyId;
     }
 
     /**
@@ -676,7 +646,7 @@ abstract class AbstractProduct implements ProductInterface
      */
     public function getFamilyVariant(): ?FamilyVariantInterface
     {
-        return $this->familyVariant;
+        return $this->parent ? $this->parent->getfamilyVariant() : null;
     }
 
     /**
@@ -684,7 +654,8 @@ abstract class AbstractProduct implements ProductInterface
      */
     public function setFamilyVariant(FamilyVariantInterface $familyVariant): void
     {
-        $this->familyVariant = $familyVariant;
+        // C'EST DEBILE
+        //$this->familyVariant = $familyVariant;
     }
 
     /**
