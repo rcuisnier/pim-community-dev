@@ -64,6 +64,9 @@ class ProductModelController
     /** @var ObjectUpdaterInterface */
     private $productModelUpdater;
 
+    /** @var ObjectUpdaterInterface */
+    private $productUpdater;
+
     /** @var RemoverInterface */
     private $productModelRemover;
 
@@ -72,6 +75,9 @@ class ProductModelController
 
     /** @var SaverInterface */
     private $productModelSaver;
+
+    /** @var SaverInterface */
+    private $productSaver;
 
     /** @var NormalizerInterface */
     private $constraintViolationNormalizer;
@@ -106,9 +112,11 @@ class ProductModelController
         EntityWithValuesFilter $emptyValuesFilter,
         ConverterInterface $productValueConverter,
         ObjectUpdaterInterface $productModelUpdater,
+        ObjectUpdaterInterface $productUpdater,
         RemoverInterface $productModelRemover,
         ValidatorInterface $validator,
         SaverInterface $productModelSaver,
+        SaverInterface $productSaver,
         NormalizerInterface $constraintViolationNormalizer,
         NormalizerInterface $entityWithFamilyVariantNormalizer,
         SimpleFactoryInterface $productModelFactory,
@@ -126,9 +134,11 @@ class ProductModelController
         $this->emptyValuesFilter = $emptyValuesFilter;
         $this->productValueConverter = $productValueConverter;
         $this->productModelUpdater = $productModelUpdater;
+        $this->productUpdater = $productUpdater;
         $this->productModelRemover = $productModelRemover;
         $this->validator = $validator;
         $this->productModelSaver = $productModelSaver;
+        $this->productSaver = $productSaver;
         $this->constraintViolationNormalizer = $constraintViolationNormalizer;
         $this->entityWithFamilyVariantNormalizer = $entityWithFamilyVariantNormalizer;
         $this->productModelFactory = $productModelFactory;
@@ -374,6 +384,38 @@ class ProductModelController
         $this->productAndProductModelClient->refreshIndex();
 
         return new JsonResponse();
+    }
+
+    public function detachVariantProductsAction(Request $request, $id)
+    {
+        if (!$request->isXmlHttpRequest()) {
+            return new RedirectResponse('/');
+        }
+
+        $productModel = $this->findProductModelOr404($id);
+
+        $products = $productModel->getProducts();
+        foreach ($products as $product) {
+            $this->productUpdater->update($product, ['parent' => null]);
+        }
+
+        $violations = $this->validator->validate($products);
+
+        if (0 === $violations->count()) {
+            $this->productSaver->saveAll($products);
+
+            $normalizedProductModel = $this->normalizer->normalize(
+                $productModel,
+                'internal_api',
+                $this->getNormalizationContext()
+            );
+
+            return new JsonResponse($normalizedProductModel);
+        }
+        
+        $normalizedViolations = $this->normalizeViolations($violations, $product);
+
+        return new JsonResponse($normalizedViolations, 400);
     }
 
     /**

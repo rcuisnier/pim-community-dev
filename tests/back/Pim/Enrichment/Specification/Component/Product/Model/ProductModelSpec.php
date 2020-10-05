@@ -104,7 +104,7 @@ class ProductModelSpec extends ObjectBehavior
         $attributeAsLabel->isUnique()->willReturn(false);
         $attributeAsLabel->isScopable()->willReturn(false);
 
-        $values->getByCodes('name', null, 'fr_FR')->willreturn($nameValue);
+        $values->getByCodes('name', null, 'fr_FR')->willReturn($nameValue);
 
         $nameValue->getAttributeCode()->willReturn('name');
         $nameValue->getScopeCode()->willReturn(null);

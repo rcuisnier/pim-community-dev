@@ -64,3 +64,10 @@ pim_enrich_product_model_history_rest_get:
     requirements:
         entityId: '[0-9a-f]+'
     methods: [GET]
+
+pim_enrich_product_model_rest_detach_variant_products:
+    path: /rest/product-model/{id}/detach-variant-products
+    defaults: { _controller: pim_enrich.controller.rest.product_model:detachVariantProductsAction }
+    requirements:
+        id: '[0-9a-f]+'
+    methods: [GET]
