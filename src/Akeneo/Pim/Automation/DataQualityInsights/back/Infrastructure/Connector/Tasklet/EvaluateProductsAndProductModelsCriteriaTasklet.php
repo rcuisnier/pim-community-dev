@@ -71,42 +71,54 @@ final class EvaluateProductsAndProductModelsCriteriaTasklet implements TaskletIn
     public function execute(): void
     {
         $startTime = time();
-        $timeboxReached = false;
 
-        while($timeboxReached === false)
+        while($this->isTimeboxReached($startTime) === false)
         {
-            foreach ($this->getProductIdsToEvaluateQuery->execute(self::LIMIT_PER_LOOP, self::BULK_SIZE) as $productIds) {
-                $this->evaluatePendingProductCriteria->evaluateAllCriteria($productIds);
-
-                $this->consolidateProductAxisRates->consolidate($productIds);
-
-                $this->indexProductRates->execute($productIds);
-
-                $this->stepExecution->setWriteCount($this->stepExecution->getWriteCount() + count($productIds));
-            }
-
-            foreach ($this->getProductModelsIdsToEvaluateQuery->execute(self::LIMIT_PER_LOOP, self::BULK_SIZE) as $productModelIds) {
-                $this->evaluatePendingProductModelCriteria->evaluateAllCriteria($productModelIds);
-
-                $this->consolidateProductModelAxisRates->consolidate($productModelIds);
-
-                $this->stepExecution->setWriteCount($this->stepExecution->getWriteCount() + count($productModelIds));
-            }
-
-            $actualTime = time();
-            $timeSpentFromBegining = $actualTime - $startTime;
-
-            if($timeSpentFromBegining >= self::TIMEBOX_IN_SECONDS_ALLOWED)
-            {
-                $timeboxReached = true;
-                continue;
-            }
-            sleep(5);
+            $this->evaluatePendingProductCriteria();
+            $this->evaluatePendingProductModelCriteria();
         }
     }
 
     public function setStepExecution(StepExecution $stepExecution)
     {
         $this->stepExecution = $stepExecution;
+    }
+
+    private function evaluatePendingProductCriteria(): void
+    {
+        foreach ($this->getProductIdsToEvaluateQuery->execute(self::LIMIT_PER_LOOP, self::BULK_SIZE) as $productIds) {
+            $this->evaluatePendingProductCriteria->evaluateAllCriteria($productIds);
+
+            $this->consolidateProductAxisRates->consolidate($productIds);
+
+            $this->indexProductRates->execute($productIds);
+
+            $this->stepExecution->setWriteCount($this->stepExecution->getWriteCount() + count($productIds));
+        }
+    }
+
+    private function evaluatePendingProductModelCriteria(): void
+    {
+        foreach ($this->getProductModelsIdsToEvaluateQuery->execute(self::LIMIT_PER_LOOP, self::BULK_SIZE) as $productModelIds) {
+            $this->evaluatePendingProductModelCriteria->evaluateAllCriteria($productModelIds);
+
+            $this->consolidateProductModelAxisRates->consolidate($productModelIds);
+
+            $this->stepExecution->setWriteCount($this->stepExecution->getWriteCount() + count($productModelIds));
+        }
+    }
+
+    private function isTimeboxReached(int $startTime): bool
+    {
+        $actualTime = time();
+        $timeSpentFromBegining = $actualTime - $startTime;
+
+        if($timeSpentFromBegining >= self::TIMEBOX_IN_SECONDS_ALLOWED)
+        {
+            return true;
+        }
+
+        sleep(5);
+        return false;
     }
 }
