@@ -40,6 +40,7 @@
 - PIM-9481: Fix the list of product models when trying to get them by family variant
 - GITHUB-12899: Fix error shown when importing product models with the same code
 - PIM-9496: Fallback to ISO 8601 yyyy-MM-dd for formatting the date on other locales
+- PIM-9494: Fix the performances of attribute-select-filter on long lists of AttributeOptions
 
 ## New features
 
