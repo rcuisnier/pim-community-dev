@@ -54,7 +54,7 @@ class DateFactory
     protected function resolveOptions(array $options)
     {
         if (!isset($options['date_format'])) {
-            if(isset($options['locale']) && isset($this->dateFormats[$options['locale']])) {
+            if (isset($options['locale']) && isset($this->dateFormats[$options['locale']])) {
                 $options['date_format'] = $this->dateFormats[$options['locale']];
             } else {
                 $options['date_format'] = self::DEFAULT_DATE_FORMAT;
