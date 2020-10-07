@@ -44,7 +44,7 @@ services:
     akeneo.pim.automation.data_quality_insights.connector.step.evaluate_products_and_product_models_criteria:
         class: '%pim_connector.step.tasklet.class%'
         arguments:
-            - 'evaluate_products_criteria'
+            - 'evaluate_products_and_product_models_criteria'
             - '@event_dispatcher'
             - '@akeneo_batch.job_repository'
             - '@akeneo.pim.automation.data_quality_insights.connector.tasklet.evaluate_products_and_product_models_criteria'
