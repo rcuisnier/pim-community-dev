@@ -136,6 +136,7 @@ class ProductAndProductModelQueryBuilder implements ProductQueryBuilderInterface
         );
         $hasGroupsFilter = $this->hasRawFilter('field', 'groups');
         $hasCategoryFilter = $this->hasFilterOnCategoryWhichImplyAggregation();
+        $hasLabelOrIdentifierField = $this->hasRawFilter('field', 'label_or_identifier');
 
         return !$hasAttributeFilters &&
             !$hasParentFilter &&
@@ -146,7 +147,8 @@ class ProductAndProductModelQueryBuilder implements ProductQueryBuilderInterface
             !$hasSelfAndAncestorsIdsFilter &&
             !$hasSelfAndAncestorsLabelOrIdentifierFilter &&
             !$hasGroupsFilter &&
-            !$hasCategoryFilter;
+            !$hasCategoryFilter &&
+            !$hasLabelOrIdentifierField;
     }
 
     /**
@@ -204,10 +206,12 @@ class ProductAndProductModelQueryBuilder implements ProductQueryBuilderInterface
         $hasParentField = $this->hasRawFilter('field', 'parent');
         $hasIdField = $this->hasRawFilter('field', 'id');
         $hasEntityTypeField = $this->hasRawFilter('field', 'entity_type');
+        $hasLabelOrIdentifierField = $this->hasRawFilter('field', 'label_or_identifier');
 
         return
             !$hasParentField &&
             !$hasIdField &&
-            !$hasEntityTypeField;
+            !$hasEntityTypeField &&
+            !$hasLabelOrIdentifierField;
     }
 }
