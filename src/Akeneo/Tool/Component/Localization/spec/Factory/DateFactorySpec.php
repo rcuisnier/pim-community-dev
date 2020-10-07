@@ -34,9 +34,15 @@ class DateFactorySpec extends ObjectBehavior
         $this->create($options)->getPattern()->shouldReturn('d/M/yy');
     }
 
-    function it_creates_an_english_date_without_locale()
+    function it_creates_a_date_with_fallback_format_when_locale_is_not_specified()
     {
         $options = [];
-        $this->create($options)->getPattern()->shouldReturn('M/d/yy');
+        $this->create($options)->getPattern()->shouldReturn('yyyy-MM-dd');
+    }
+
+    function it_creates_a_date_with_fallback_format_when_locale_is_not_supported()
+    {
+        $options = ['locale' => 'de_DE'];
+        $this->create($options)->getPattern()->shouldReturn('yyyy-MM-dd');
     }
 }
